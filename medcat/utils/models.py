@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
+from transformers import BertModel
 
 class LSTM(nn.Module):
     def __init__(self, embeddings, padding_idx, nclasses=2, bid=True, input_size=300,
@@ -72,3 +73,44 @@ class LSTM(nn.Module):
         x = self.fc1(x)
 
         return x
+
+
+
+# Bert-BiGRU-Classifier
+class BERT_GRU(nn.Module):
+    def __init__(self, Bio_BERT_PATH, bid=True, input_size=768, num_layers=5, hidden_size=768, dropout=0.5,nclasses=1):
+        super(BERT_GRU, self).__init__()
+        self.embedding = BertModel.from_pretrained(Bio_BERT_PATH)
+        self.num_layers = num_layers
+        self.bid = bid
+        self.input_size = input_size
+        self.nclasses = nclasses
+        self.num_directions = (2 if self.bid else 1)
+        self.dropout = dropout
+        self.gru = nn.GRU(
+            input_size=self.input_size,
+            hidden_size=self.hidden_size,
+            dropout=self.dropout,
+            num_layers=self.num_layers,
+            bidirectional=self.bid,
+            batch_first=True,
+        )
+
+        self.fc_1 = nn.Linear(self.hidden_size, self.nclasses)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, tokens, masks=None):
+        # BERT
+        embedded, _ = self.embedding(tokens, attention_mask=masks)
+        cls_vector = embedded[:, 0, :]
+        cls_vector = cls_vector.view(-1, 1, self.input_size)
+
+        # GRU
+        _, hidden = self.gru(cls_vector)
+        hidden = hidden[-1]
+
+        # Fully-connected layer
+        outputs = self.fc_1(hidden.squeeze(0))
+        outputs = self.sigmoid(outputs).view(-1)
+
+        return outputs

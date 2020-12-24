@@ -36,7 +36,7 @@ class MetaCAT(object):
             self.save_dir = self.save_dir + "/"
 
 
-    def train(self, json_path, category_name=None, model_name='lstm', lr=0.01, test_size=0.1,
+    def train(self, json_path, category_name=None, model_name='BERT_GRU', Bio_BERT_PATH=None, lr=0.01, test_size=0.1,
               batch_size=100, nepochs=20, lowercase=True, class_weights=None, cv=0,
               ignore_cpos=False, model_config={}, tui_filter=None, fine_tune=False,
               auto_save_model=True, score_average='weighted', replace_center=None, seed=11):
@@ -85,6 +85,18 @@ class MetaCAT(object):
                 dropout = model_config.get("dropout", 0.5)
 
                 self.model = LSTM(self.embeddings, self.pad_id, nclasses=nclasses, bid=bid, num_layers=num_layers,
+                             input_size=input_size, hidden_size=hidden_size, dropout=dropout)
+
+            if model_name == 'bert_gru':
+                from medcat.utils.models import BERT_GRU
+                nclasses = len(self.category_values)
+                bid = model_config.get("bid", True)
+                num_layers = model_config.get("num_layers", 5)
+                input_size = model_config.get("input_size", 768)
+                hidden_size = model_config.get("hidden_size", 768)
+                dropout = model_config.get("dropout", 0.5)
+
+                self.model = BERT_GRU(Bio_BERT_PATH, nclasses=nclasses, bid=bid, num_layers=num_layers,
                              input_size=input_size, hidden_size=hidden_size, dropout=dropout)
 
         if cv == 0:

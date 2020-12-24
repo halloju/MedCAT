@@ -80,10 +80,11 @@ class LSTM(nn.Module):
 class BERT_GRU(nn.Module):
     def __init__(self, Bio_BERT_PATH, bid=True, input_size=768, num_layers=5, hidden_size=768, dropout=0.5,nclasses=1):
         super(BERT_GRU, self).__init__()
-        self.embedding = BertModel.from_pretrained(Bio_BERT_PATH)
+        self.embedding = BertModel.from_pretrained(Bio_BERT_PATH,from_tf=True)
         self.num_layers = num_layers
         self.bid = bid
         self.input_size = input_size
+        self.hidden_size = hidden_size
         self.nclasses = nclasses
         self.num_directions = (2 if self.bid else 1)
         self.dropout = dropout

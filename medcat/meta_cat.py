@@ -36,7 +36,7 @@ class MetaCAT(object):
             self.save_dir = self.save_dir + "/"
 
 
-    def train(self, json_path, category_name=None, model_name='BERT_GRU', Bio_BERT_PATH=None, lr=0.01, test_size=0.1,
+    def train(self, json_path, category_name=None, model_name='bert_gru', Bio_BERT_PATH=None, lr=0.01, test_size=0.1,
               batch_size=100, nepochs=20, lowercase=True, class_weights=None, cv=0,
               ignore_cpos=False, model_config={}, tui_filter=None, fine_tune=False,
               auto_save_model=True, score_average='weighted', replace_center=None, seed=11):
@@ -76,7 +76,7 @@ class MetaCAT(object):
 
         if not fine_tune:
             if model_name == 'lstm':
-                from medcat.utils.models import LSTM
+                from utils.models import LSTM
                 nclasses = len(self.category_values)
                 bid = model_config.get("bid", True)
                 num_layers = model_config.get("num_layers", 2)
@@ -88,7 +88,7 @@ class MetaCAT(object):
                              input_size=input_size, hidden_size=hidden_size, dropout=dropout)
 
             if model_name == 'bert_gru':
-                from medcat.utils.models import BERT_GRU
+                from utils.models import BERT_GRU
                 nclasses = len(self.category_values)
                 bid = model_config.get("bid", True)
                 num_layers = model_config.get("num_layers", 5)
@@ -98,6 +98,7 @@ class MetaCAT(object):
 
                 self.model = BERT_GRU(Bio_BERT_PATH, nclasses=nclasses, bid=bid, num_layers=num_layers,
                              input_size=input_size, hidden_size=hidden_size, dropout=dropout)
+                print(self.model.parameters())
 
         if cv == 0:
             (f1, p, r, cls_report) = train_network(self.model, data, max_seq_len=(self.cntx_left+self.cntx_right+1), lr=lr, test_size=test_size,
@@ -325,3 +326,9 @@ class MetaCAT(object):
                     ent._.meta_anns[self.category_name] = val
 
         return doc
+
+if __name__ == "__main__":
+    tokenizer = ByteLevelBPETokenizer(vocab="/home/wanchu/MedCAT/medmen-vocab.json", merges="/home/wanchu/MedCAT/medmen-merges.txt")
+    embeddings = np.load(open("/home/wanchu/MedCAT/embeddings.npy", 'rb'))
+    mc = MetaCAT(embeddings=embeddings, tokenizer=tokenizer)
+    mc.train("/home/wanchu/MedCAT/MedCAT_Export.json", 'Status', nepochs=20, Bio_BERT_PATH='/home/wanchu/MedCAT/biobert_large')

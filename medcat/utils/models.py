@@ -100,7 +100,7 @@ class BERT_GRU(nn.Module):
         self.fc_1 = nn.Linear(self.hidden_size, self.nclasses)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, tokens, masks=None):
+    def forward(self, tokens, masks=None, cpos=None, ignore_cpos=True):
         # BERT
         embedded, _ = self.embedding(tokens, attention_mask=masks)
         cls_vector = embedded[:, 0, :]

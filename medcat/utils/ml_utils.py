@@ -1,13 +1,13 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
-from medcat.utils.models import LSTM as MODEL
+from utils.LSTM import LSTM as MODEL
 from sklearn.metrics import classification_report, f1_score, confusion_matrix, precision_score, recall_score
 import torch
 from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from medcat.utils.loggers import basic_logger
+from utils.loggers import basic_logger
 log = basic_logger("utils")
 
 
@@ -73,8 +73,11 @@ def train_network(net, data, lr=0.01, test_size=0.1, max_seq_len=41, pad_id=3000
                   nepochs=20, device='cpu', save_dir='./meta_cat/', class_weights=None, ignore_cpos=False,
                   auto_save_model=True, score_average='weighted'):
     # Split data
+    print(data)
     y = np.array([x[0] for x in data])
+    print(y)
     x = [x[1] for x in data]
+    print(x)
     cent = np.array([x[2] for x in data])
 
     # Pad X and convert to array

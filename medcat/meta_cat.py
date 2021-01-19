@@ -76,7 +76,7 @@ class MetaCAT(object):
 
         if not fine_tune:
             if model_name == 'lstm':
-                from utils.LSTM import LSTM
+                from medcat.utils.LSTM import LSTM
                 nclasses = len(self.category_values)
                 bid = model_config.get("bid", True)
                 num_layers = model_config.get("num_layers", 2)
@@ -88,7 +88,7 @@ class MetaCAT(object):
                              input_size=input_size, hidden_size=hidden_size, dropout=dropout)
 
             if model_name == 'bert_gru':
-                from utils.BERTGRU import BERTGRU
+                from medcat.utils.BERTGRU import BERTGRU
                 nclasses = len(self.category_values)
                 bid = model_config.get("bid", True)
                 num_layers = model_config.get("num_layers", 2)

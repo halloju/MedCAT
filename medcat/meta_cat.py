@@ -3,7 +3,7 @@ import json
 import pickle
 import numpy as np
 import torch
-from tokenizers import ByteLevelBPETokenizer
+from tokenizers import ByteLevelBPETokenizer, BertWordPieceTokenizer
 
 from medcat.utils.ml_utils import train_network, eval_network
 from medcat.utils.data_utils import prepare_from_json, encode_category_values, tkns_to_ids, set_all_seeds
@@ -36,7 +36,7 @@ class MetaCAT(object):
             self.save_dir = self.save_dir + "/"
 
 
-    def train(self, json_path, category_name=None, model_name='lstm', Bio_BERT_PATH='emilyalsentzer/Bio_ClinicalBERT', lr=0.01, test_size=0.1,
+    def train(self, json_path, category_name=None, model_name='bert_gru', Bio_BERT_PATH='emilyalsentzer/Bio_ClinicalBERT', lr=0.01, test_size=0.1,
               batch_size=100, nepochs=20, lowercase=True, class_weights=None, cv=0,
               ignore_cpos=False, model_config={}, tui_filter=None, fine_tune=False,
               auto_save_model=True, score_average='weighted', replace_center=None, seed=11):
@@ -52,7 +52,7 @@ class MetaCAT(object):
         # Prepare the data
         data = prepare_from_json(data, self.cntx_left, self.cntx_right, self.tokenizer, lowercase=lowercase, tui_filter=tui_filter,
                 replace_center=replace_center)
-        print(data['Status'][4])
+        # print(data['Status'][4])
         if category_name is not None:
             self.category_name = category_name
 
@@ -97,7 +97,7 @@ class MetaCAT(object):
                 dropout = model_config.get("dropout", 0.5)
                 self.model = BERTGRU(Bio_BERT_PATH, self.pad_id, nclasses=nclasses, bid=bid, num_layers=num_layers,
                              input_size=input_size, hidden_size=hidden_size, dropout=dropout)
-                print(self.model.parameters())
+                # print(self.model.parameters())
 
         if cv == 0:
             (f1, p, r, cls_report) = train_network(self.model, data, max_seq_len=(self.cntx_left+self.cntx_right+1), lr=lr, test_size=test_size,
@@ -116,7 +116,7 @@ class MetaCAT(object):
                     self.load_model(model=model_name)
                 else:
                     if model_name == 'lstm':
-                        from LSTM import LSTM
+                        from medcat.utils.LSTM import LSTM
                         nclasses = len(self.category_values)
                         self.model = LSTM(self.embeddings, self.pad_id, nclasses=nclasses)
 
@@ -243,31 +243,41 @@ class MetaCAT(object):
         self.pad_id = to_load.get('pad_id', 0)
 
 
-    def load_model(self, model='lstm'):
+    def load_model(self, model='bert_gru'):
         # Load MODEL
         if model == 'lstm':
-            from utils.LSTM import LSTM
+            from medcat.utils.LSTM import LSTM
             nclasses = len(self.category_values)
             self.model = LSTM(self.embeddings, self.pad_id,
                               nclasses=nclasses)
             path = self.save_dir + "lstm.dat"
+        elif model == 'bert_gru':
+            from medcat.utils.BERTGRU import BERTGRU
+            nclasses = len(self.category_values)
+            self.model = BERTGRU(Bio_BERT_PATH='emilyalsentzer/Bio_ClinicalBERT', padding_idx = self.pad_id,
+                              nclasses=nclasses)
+            path = self.save_dir + "gru.dat"
 
         self.model.load_state_dict(torch.load(path, map_location=self.device))
 
 
-    def load(self, model='lstm', tokenizer_name='bbpe'):
+    def load(self, model='bert_gru', tokenizer_name='bbpe'):
         """ Loads model and config for this meta annotation
         """
         # Load tokenizer if it is None
         if self.tokenizer is None:
-            vocab_file = self.save_dir + "{}-vocab.json".format(tokenizer_name)
-            merges_file = self.save_dir + "{}-merges.txt".format(tokenizer_name)
-            self.tokenizer = ByteLevelBPETokenizer(vocab_file=vocab_file, merges_file=merges_file, lowercase=True)
-
-        # Load embeddings if None
-        if self.embeddings is None:
-            embeddings = np.load(open(self.save_dir  + "embeddings.npy", 'rb'))
-            self.embeddings = torch.tensor(embeddings, dtype=torch.float32)
+            if model=='lstm':
+                vocab_file = self.save_dir + "{}-vocab.json".format(tokenizer_name)
+                merges_file = self.save_dir + "{}-merges.txt".format(tokenizer_name)
+                self.tokenizer = ByteLevelBPETokenizer(vocab_file=vocab_file, merges_file=merges_file, lowercase=True)
+            elif model=='bert_gru':
+                self.tokenizer = BertWordPieceTokenizer("Bio_ClinicalBERT/vocab.txt", lowercase=True)
+        
+        if model=='lstm':
+            # Load embeddings if None
+            if self.embeddings is None:
+                embeddings = np.load(open(self.save_dir  + "embeddings.npy", 'rb'))
+                self.embeddings = torch.tensor(embeddings, dtype=torch.float32)
 
         # Load configuration
         self.load_config()

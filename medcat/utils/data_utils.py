@@ -681,7 +681,7 @@ def prepare_from_json(data, cntx_left, cntx_right, tokenizer, lowercase=True, cn
                     tui = ""
                     if tui_filter:
                         tui = ann['tui']
-                    
+
                     if not tui_filter or tui in tui_filter:
                         if ann.get('validated', True) and (not ann.get('deleted', False) and not ann.get('killed', False)):
                             start = ann['start']
@@ -693,7 +693,6 @@ def prepare_from_json(data, cntx_left, cntx_right, tokenizer, lowercase=True, cn
                                 for ind, pair in enumerate(doc_text.offsets):
                                     if start >= pair[0] and start < pair[1]:
                                         break
-                                print(start)
                                 _start = max(0, ind - cntx_left)
                                 _end = min(len(doc_text.tokens), ind + 1 + cntx_right)
                                 tkns = doc_text.tokens[_start:_end]

@@ -11,7 +11,7 @@ from utils.data_utils import prepare_from_json, encode_category_values, tkns_to_
 class MetaCAT(object):
     r''' TODO: Add documentation
     '''
-    def __init__(self, tokenizer=None, embeddings=None, cntx_left=20, cntx_right=20,
+    def __init__(self, tokenizer=None, embeddings=None, cntx_left=30, cntx_right=30,
                  save_dir='./meta_cat/', pad_id=30000, device='cpu'):
         self.tokenizer = tokenizer
         if embeddings is not None:

@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from tokenizers import ByteLevelBPETokenizer
 
-from utils.ml_utils import train_network, eval_network
-from utils.data_utils import prepare_from_json, encode_category_values, tkns_to_ids, set_all_seeds
+from medcat.utils.ml_utils import train_network, eval_network
+from medcat.utils.data_utils import prepare_from_json, encode_category_values, tkns_to_ids, set_all_seeds
 
 class MetaCAT(object):
     r''' TODO: Add documentation

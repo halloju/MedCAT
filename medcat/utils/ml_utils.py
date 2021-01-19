@@ -7,7 +7,7 @@ from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-from utils.loggers import basic_logger
+from medcat.utils.loggers import basic_logger
 log = basic_logger("utils")
 
 

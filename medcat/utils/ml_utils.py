@@ -166,7 +166,7 @@ def train_network(net, data, lr=0.01, test_size=0.1, max_seq_len=41, pad_id=3000
         if f1 > best_f1:
             print("=" * 50)
             if auto_save_model:
-                path = save_dir + "gru.dat"
+                path = save_dir + "bert_gru.dat"
                 torch.save(net.state_dict(), path)
                 print("Model saved at epoch: {} and f1: {}".format(epoch, f1))
 

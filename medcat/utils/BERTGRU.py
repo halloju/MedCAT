@@ -7,7 +7,7 @@ from transformers import BertModel
 
 # Bert-BiGRU-Classifier
 class BERTGRU(nn.Module):
-    def __init__(self, Bio_BERT_PATH, padding_idx, bid=True, input_size=300, num_layers=2, hidden_size=300, dropout=0.5,nclasses=2):
+    def __init__(self, Bio_BERT_PATH, padding_idx, bid=True, input_size=768, num_layers=2, hidden_size=768, dropout=0.5,nclasses=2):
         super(BERTGRU, self).__init__()
         self.padding_idx = padding_idx
         self.embedding = BertModel.from_pretrained(Bio_BERT_PATH)

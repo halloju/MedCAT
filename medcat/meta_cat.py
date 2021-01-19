@@ -255,8 +255,8 @@ class MetaCAT(object):
             from medcat.utils.BERTGRU import BERTGRU
             nclasses = len(self.category_values)
             self.model = BERTGRU(Bio_BERT_PATH='emilyalsentzer/Bio_ClinicalBERT', padding_idx = self.pad_id,
-                              nclasses=nclasses)
-            path = self.save_dir + "gru.dat"
+                              nclasses=nclasses, input_size=768)
+            path = self.save_dir + "bert_gru.dat"
 
         self.model.load_state_dict(torch.load(path, map_location=self.device))
 

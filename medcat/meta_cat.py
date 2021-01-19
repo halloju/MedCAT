@@ -93,7 +93,7 @@ class MetaCAT(object):
                 bid = model_config.get("bid", True)
                 num_layers = model_config.get("num_layers", 2)
                 input_size = model_config.get("input_size", 768)
-                hidden_size = model_config.get("hidden_size", 300)
+                hidden_size = model_config.get("hidden_size", 768)
                 dropout = model_config.get("dropout", 0.5)
                 self.model = BERTGRU(Bio_BERT_PATH, self.pad_id, nclasses=nclasses, bid=bid, num_layers=num_layers,
                              input_size=input_size, hidden_size=hidden_size, dropout=dropout)
